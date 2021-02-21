@@ -22,7 +22,7 @@
 #include <errno.h>
 
 extern "C" {
-#include "plasma/thirdparty/ae/ae.h"
+#include "ae/ae.h"
 }
 
 namespace plasma {

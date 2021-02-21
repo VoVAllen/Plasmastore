@@ -40,22 +40,22 @@
 #include <time.h>
 #include <errno.h>
 
-#include "plasma/thirdparty/ae/ae.h"
-#include "plasma/thirdparty/ae/zmalloc.h"
-#include "plasma/thirdparty/ae/config.h"
+#include "ae/ae.h"
+#include "ae/zmalloc.h"
+#include "ae/config.h"
 
 /* Include the best multiplexing layer supported by this system.
  * The following should be ordered by performances, descending. */
 #ifdef HAVE_EVPORT
-#include "plasma/thirdparty/ae/ae_evport.c"
+#include "ae/ae_evport.c"
 #else
     #ifdef HAVE_EPOLL
-    #include "plasma/thirdparty/ae/ae_epoll.c"
+    #include "ae/ae_epoll.c"
     #else
         #ifdef HAVE_KQUEUE
-        #include "plasma/thirdparty/ae/ae_kqueue.c"
+        #include "ae/ae_kqueue.c"
         #else
-        #include "plasma/thirdparty/ae/ae_select.c"
+        #include "ae/ae_select.c"
         #endif
     #endif
 #endif

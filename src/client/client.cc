@@ -64,7 +64,7 @@ using arrow::cuda::CudaDeviceManager;
 #endif
 
 #define XXH_INLINE_ALL 1
-#include "arrow/vendored/xxhash.h"
+#include "xxhash/xxhash.h"
 
 #define XXH64_DEFAULT_SEED 0
 
