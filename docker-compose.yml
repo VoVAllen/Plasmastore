@@ -12,14 +12,6 @@ services:
       - "/io/scripts/build.sh"
     environment:
       - ARROW_CUDA=ON
-    # user: $UID:$GID
-    deploy:
-      resources:
-        reservations:
-          devices:
-          - driver: nvidia
-            count: 1
-            capabilities: [gpu, utility]
   build_cpu:
     build:
       context: ./docker/
