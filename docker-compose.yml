@@ -1,0 +1,34 @@
+version: '3.5'
+
+services:
+  build_cuda:
+    build:
+      context: ./docker/
+      dockerfile: build_cuda.dockerfile
+    volumes:
+      - ./:/io:delegated
+    command:
+      - "bash"
+      - "/io/scripts/build.sh"
+    environment:
+      - ARROW_CUDA=ON
+    # user: $UID:$GID
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu, utility]
+  build_cpu:
+    build:
+      context: ./docker/
+      dockerfile: build_cpu.dockerfile
+    volumes:
+      - ./:/io:delegated
+    command:
+      - "bash"
+      - "/io/scripts/build.sh"
+    environment:
+      - ARROW_CUDA=OFF
+    # user: $UID:$GID

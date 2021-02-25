@@ -25,7 +25,7 @@ add_dependencies(plasma-all plasma plasma-tests plasma-benchmarks)
 # For the moment, Plasma is versioned like Arrow
 set(ARROW_VERSION "1.0")
 set(PLASMA_VERSION "${ARROW_VERSION}")
-set(ARROW_CUDA ON)
+# set(ARROW_CUDA ON)
 find_package(Threads)
 
 # The SO version is also the ABI version
@@ -54,17 +54,16 @@ set(PLASMA_STORE_SRCS
     src/server/store.cc
     thirdparty/ae/include/ae/ae.c)
 
-# set(PLASMA_LINK_LIBS arrow_shared)
-# set(PLASMA_STATIC_LINK_LIBS arrow)
+set(PLASMA_LINK_LIBS arrow_shared)
 
 # find_library(ARROW_CUDA_LIB_PATH NAMES libarrow_cuda.a arrow_cuda)
 # find_library(ARROW_LIB_PATH NAMES libarrow.a arrow)
 # find_library(ARROW_DEP_LIB_PATH NAMES libarrow_bundled_dependencies.a
 # arrow_bundled_dependencies)
-
-# list(INSERT PLASMA_STATIC_LINK_LIBS 0 ${ARROW_CUDA_LIB_PATH})
-add_definitions(-DPLASMA_CUDA)
-
+if(ARROW_CUDA)
+  list(APPEND PLASMA_LINK_LIBS arrow_cuda)
+  add_definitions(-DPLASMA_CUDA)
+endif()
 add_library(plasma_client SHARED ${PLASMA_SRCS})
 target_include_directories(plasma_client PRIVATE "include")
 target_include_directories(plasma_client
@@ -72,7 +71,7 @@ target_include_directories(plasma_client
 target_include_directories(plasma_client PRIVATE "thirdparty/xxhash/include")
 message(STATUS "ARROW CUDA: ${ARROW_CUDA_LIB_PATH}")
 set_target_properties(plasma_client PROPERTIES LINK_FLAGS "-Wl,-rpath,./")
-target_link_libraries(plasma_client arrow_shared arrow_cuda)
+target_link_libraries(plasma_client PRIVATE ${PLASMA_LINK_LIBS})
 
 foreach(LIB_TARGET ${PLASMA_LIBRARIES})
   target_compile_definitions(${LIB_TARGET} PRIVATE ARROW_EXPORTING)
@@ -97,25 +96,27 @@ target_include_directories(plasma-store-server
 target_include_directories(plasma-store-server
                            PRIVATE "thirdparty/dlmalloc/include")
 target_include_directories(plasma-store-server PRIVATE "thirdparty/ae/include")
-target_link_libraries(plasma-store-server ${GFLAGS_LIBRARIES})
-target_link_libraries(plasma-store-server plasma_client)
+target_link_libraries(plasma-store-server PRIVATE ${GFLAGS_LIBRARIES})
+target_link_libraries(plasma-store-server PRIVATE plasma_client ${PLASMA_LINK_LIBS})
 
 set_target_properties(plasma-store-server PROPERTIES LINK_FLAGS "-Wl,-rpath,./")
 add_dependencies(plasma plasma-store-server)
+
 
 #
 # Unit tests
 #
 
 # Adding unit tests part of the "arrow" portion of the test suite
-# function(ADD_PLASMA_TEST REL_TEST_NAME) set(options) set(one_value_args)
+# function(ADD_PLASMA_TEST REL_TEST_NAME) 
+# set(options) set(one_value_args)
 # set(multi_value_args) cmake_parse_arguments(ARG "${options}"
 # "${one_value_args}" "${multi_value_args}" ${ARGN})
 # add_test_case(${REL_TEST_NAME} PREFIX "plasma" LABELS "plasma-tests"
-# ${ARG_UNPARSED_ARGUMENTS}) endfunction()
+# ${ARG_UNPARSED_ARGUMENTS}) 
+# endfunction()
 
-# if(ARROW_BUILD_SHARED) set(PLASMA_TEST_LIBS plasma_shared ${PLASMA_LINK_LIBS})
-# else() set(PLASMA_TEST_LIBS plasma_static ${PLASMA_STATIC_LINK_LIBS}) endif()
+# set(PLASMA_TEST_LIBS plasma_shared ${PLASMA_LINK_LIBS})
 
 # add_plasma_test(test/serialization_tests EXTRA_LINK_LIBS ${PLASMA_TEST_LIBS})
 # add_plasma_test(test/client_tests EXTRA_LINK_LIBS ${PLASMA_TEST_LIBS}
